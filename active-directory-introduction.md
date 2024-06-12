@@ -96,7 +96,7 @@ We are essentialy creating a *tree* which is the next container up in the AD str
 
 In our example we will create AU.TEZZLA.COM and CN.TEZZLA.COM
 
-[ad1](images/1.png)
+![ad1](images/1.png)
 
 The lines in the diagram represent *trust relationships*
 
@@ -130,7 +130,7 @@ The trees in a forest can have different namespaces - working with our example t
 
 Hopefully the diagram below will start to make things more clear.
 
-[ad2](images/2.png)
+![ad2](images/2.png)
 
 >[!NOTE]
 >The diagram has had some arrows showing trusts left off because it would be cluttered - essentialy because there is a two-way transitive trust created between the trees in our forest *all* domains in TEZZLA.COM can access *all* domains in TEZZLA.ORG and vice-versa
