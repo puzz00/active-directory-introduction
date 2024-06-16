@@ -396,3 +396,24 @@ They can contain group objects which have *universal* or *global* scopes.
 
 ![ad16](images/16.png)
 
+### Organizational Unit Objects
+
+When we log into a domain controller and manage active directory users and computers, we will see that the users, computers and groups are arranged into Organizional Units. These units can be seen as containers. It is common to see these units mirror the business logic of an organization - we might see units called sales, IT, admin etc.
+
+>[!NOTE]
+>Organizational units are different to security groups - security groups are used to manage privileges over resources whilst organizational units are used to apply policies quickly
+
+The above note makes us aware that OUs are used to let administrators more easily manage domain objects.
+
+Group Policy Objects - which we will cover later in these notes - can be attached to OUs and these GPOs will then affect the objects linked to the OU.
+
+![ad10](images/10.png)
+
+![ad11](images/11.png)
+
+![ad12](images/12.png)
+
+![ad17](images/17.png)
+
+![ad18](images/18.png)
+
