@@ -275,3 +275,124 @@ If a machine is only part of a *workgroup* and not joined to a domain it is more
 ![ad13](images/13.png)
 
 ![ad14](images/14.png)
+
+### Group Objects
+
+As the name suggests - *group objects* let us group together objects in AD
+
+Group objects are therefore considered to be *container objects* as they can contain other objects including users, computers and other groups.
+
+>[!NOTE]
+>There are two different types of group in AD - we have *security groups* and *distribution groups* - distribution groups are used by email apps - we will focus here on *security groups* which are used for access, rights and privileges management
+
+The main purpose of having group objects is so we can easily manage access to resources along with rights and privileges.
+
+Consider a business which wants to give all one hundred members of their finance department access to a new shared folder - it would be crazy to do this on a one-by-one basis - this is where a group can help as the sysadmin could use an existing group or create a new one which contains the members of the finance department and then give that group access to the shared folder.
+
+>[!NOTE]
+>Groups are used for managing security related issues such as access | rights | privileges
+
+#### Common Security Groups
+
+We can create *custom* security groups in AD but there are also *builtin* security groups which are created when a domain itself is created.
+
+Here are some of the builtin security groups.
+
+##### Enterprise Admins
+
+This is a group which has administrative privileges across an entire forest - this means that members of the enterprise admin group have admin privileges for *every* domain in the forest - obviously members of this group are high value targets.
+
+##### Domain Admins
+
+Members of this group have full admin conrol over the domain which the domain admin group was established for - also another high value target.
+
+##### Server Operators
+
+Members of this group have permissions to manage servers in the domain - these servers include *domain controllers* and therefore members of the server operators group are high value targets.
+
+##### Backup Operators
+
+Members of this group can backup *and* restore data on systems regardless of file permissions - they can also read and write to files due to their privilege to bypass file system permissions - clearly members of the backup operators group are also high value targets.
+
+##### Account Operators
+
+Members of this group can manage user, computer and group accounts. This means they can alter data relating to the accounts - for example reseting passwords | add new accounts | delete accounts - members of the account operators group are therefore considered high value targets.
+
+##### Domain Controllers
+
+Members of this group are high value targets because a *domain controller* is the main brain working within AD for a domain - they are servers which have been promoted to become domain controllers. Domain controllers are responsible for authenticating accounts, authorizing access attempts and maintaining the directory database.
+
+##### Domain Users
+
+Members of this group do not typically have high privileges but they are still very important as they serve as a great way to gain initial access to a domain. We can target domain users with techniques such as [phishing emails](https://github.com/puzz00/client-side-attacks/blob/main/client-side-attacks.md#phishing-campaigns-using-gophish) and once we have gained access via their account we can perform lots of useful enumeration of the entire domain. Since members of the domain users group are not considered as high a security risk as members of groups such as domain admins they typically are not monitored as closely and can therefore be easier to compromise.
+
+##### Domain Computers
+
+Members of this group are again very useful to gain an initial foothold with - we can do so via exploiting vulnerabilities or deploying malware. We can loot data from a compromised member of the domain computers group and they are also great for initial enumeration.
+
+#### Nested Groups
+
+Since group objects can - and frequently do - contain other group objects within them we can consider the security implications of this nesting of groups inside other groups.
+
+Members of a group inherit privileges from the parent group or groups - this can easily lead to unintentional granting of privileges since keeping track of all the data can be tricky especially in large AD environments.
+
+An excellent tool for enumerating misconfigurations of privileges resulting from nested group membership is *bloodhound* - this maps visually lots of useful data including group memberships and privileges relating to them. We will cover the use of bloodhound in more depth in another repo which we intend to use to go into more detail regarding the enumeration of AD environments.
+
+#### Group Attributes
+
+Group objects can have many attributes - here are some of the more common and useful ones to know about.
+
+- cn | the *Common Name* attribute is simply the name of the group within AD
+- member | the *member* attribute lets us find the members objects of the group
+- groupType | this is an integer which lets us know the *group type* and the groups *scope*
+- memberOf | this lets us check nested groups as we will see the names of groups which this group is in
+- objectSID | the SecurityIDentifier is the unique value used to identify the group as a *security principal*
+
+#### Group Scopes
+
+We have already covered group types - security or distribution - we will now consider *group scope*
+
+Within AD there are three scopes for groups to have.
+
+- Domain Local Group
+- Global Group
+- Universal Group
+
+We will look at these in more detail below.
+
+##### Domain Local Group
+
+Any groups which have the *domain local group* scope have the ability to manage permissions to resources *only* in the domain they were created in.
+
+This means that members of a group which has the *domain local group* scope *cannot* manage permissions for resources in other domains which might be found in the AD environment.
+
+Interestingly, groups with domain local scope *can* contain users from *different* domains. This means that a user object from domain B can get access to managing permissions for objects in domain A by being added to a security group which has domain local scope in domain A
+
+There are other considerations to be taken into account when considering the above example - is there a bidirectional trust relationship between domain A and B for example - but it is technically possible.
+
+>[!IMPORTANT]
+>Domain local groups can be *nested* inside other *domain local groups* but they *cannot* be *nested* inside *global* scope groups
+
+##### Global Scope
+
+Group objects with *global scope* can operate across different domains. They *can* be nested inside *domain local* scope groups as well as other *global scope* groups.
+
+Groups with *global scope* are limited to containing objects from the *same domain* as themselves.
+
+##### Universal Scope
+
+As the name suggests - group objects with *universal group scope* can contain objects from *any* domain in a forest.
+
+They can contain group objects which have *universal* or *global* scopes.
+
+>[!NOTE]
+>Groups with universal scope are kept in the Global Catalog so altering objects in them causes replication to occur across a forest
+
+![ad8](images/8.png)
+
+![ad9](images/9.png)
+
+![ad15](images/15.png)
+
+![ad16](images/16.png)
+
