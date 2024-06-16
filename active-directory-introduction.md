@@ -241,3 +241,37 @@ We can create local user accounts but there are some default ones which are crea
 >The last part of an SID is called the *Relative IDentifier* - it makes each full SID unique - if we see it is `500` we know we are looking at the default *Administrator* account | standard local user accounts typically begin at `1001` and increment from there as they are created
 
 ![ad7](images/19.png)
+
+### Computer Objects
+
+Computer objects in AD are used for devices which join the domain. These machines can be clients or servers. In addition, these devices can either be physical or virtual machines.
+
+Computer accounts are considered *security principals* as they can act on other resources in the domain. They have their own unique name and Global Unique IDentifier as well as a Security IDentifier.
+
+Computer objects are *leaf* objects so they cannot contain other AD objects.
+
+Since a secure trust relationship is established between a machine and a domain, computer objects can authenticate to other objects in the domain - such as other machines - and they can access network resources.
+
+Computer objects can authorize users from the domain.
+
+Each computer account has its own *security context* to operate across the domain - they do not have NT AUTHORITY\SYSTEM status on other machines within the domain.
+
+The security context of the computer accounts can be altered by domain admins - for example they could allow a machine to access shared folders or printers.
+
+>[!IMPORTANT]
+>Even though computer accounts do not operate with elevated privileges on other machines in a domain - they are still *high value targets* because if we pwn one we will still have *read* access to lots of the domain and therefore will be able to *enumerate* AD to further our attacks
+
+Having a machine joined to a domain rather than not being joined - a host not joined to a domain will be part of a *workgroup* - gives benefits.
+
+When a machine is joined to a domain it can easily share and access resources. Policies can more easily and consistently applied via the domains *group policy*
+
+If a machine is only part of a *workgroup* and not joined to a domain it is more difficult to share resources with other machines and changes to policies need to be performed on each machine locally.
+
+>[!TIP]
+>If we gain access to a domain via a computer account it is well worth our while to use it to enumerate the domain as well as loot locally stored data such as passwords, ssh keys and sensitive files - remember - a computer account in AD has pretty much the same rights as a domain user so it will have read access to lots of the domains data
+
+![ad7b](images/7.png)
+
+![ad13](images/13.png)
+
+![ad14](images/14.png)
