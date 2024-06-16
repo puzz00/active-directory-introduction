@@ -202,13 +202,13 @@ Each user has a unique account which uses a username and a password to log into 
 >[!NOTE]
 >User objects are *leaf* objects which means they cannot contain other objects - they can be placed into other objects however such as *groups* and *organizational units*
 
-[ad3](images/3.png)
+![ad3](images/3.png)
 
-[ad4](images/4.png)
+![ad4](images/4.png)
 
-[ad5](images/5.png)
+![ad5](images/5.png)
 
-[ad6](images/6.png)
+![ad6](images/6.png)
 
 #### Local Accounts
 
@@ -240,4 +240,4 @@ We can create local user accounts but there are some default ones which are crea
 >[!TIP]
 >The last part of an SID is called the *Relative IDentifier* - it makes each full SID unique - if we see it is `500` we know we are looking at the default *Administrator* account | standard local user accounts typically begin at `1001` and increment from there as they are created
 
-[ad7](images/19.png)
+![ad7](images/19.png)
