@@ -417,3 +417,93 @@ Group Policy Objects - which we will cover later in these notes - can be attache
 
 ![ad18](images/18.png)
 
+### Group Policy Objects
+
+Group Policy Objects are objects in active directory which let us apply settings to organisational units. These settings can relate to users or computers. They can relate to security or other configurations and GPOs let us apply them quickly and easily to organisational units.
+
+>[!NOTE]
+>Hosts running windows have a *Local Group Policy* editor which can be used to manage *local* settings - we are focussing on *Group Policy* in a *domain* for use in *active directory*
+
+GPOs are a great way to manage the security settings of users and computers in a domain since they can be easily and quickly deployed and they let us fine tune the settings. They can be abused however and if an attacker gains rights over a GPO they might be able to use it for lateral movement, priv esc or pwning the domain.
+
+>[!NOTE]
+>Attacks using GPOs often occur when an attacker compromises a user which has rights to modify a GPO which is attached to an OU which contains a user or computer which is under the control of the attacker
+
+Group Policy Objects are essentialy a collection of policies. These policies can relate to many areas such as enforcing a password policy, managing screen lockout times, managing remote access settings and many, many more.
+
+The policies can be applied to both users and computers in a domain. The GPO is attached to an Organizational Unit container and will apply to its members and child members if other OUs are inside it.
+
+A GPO can be attached to any number of OUs and an OU can have any number of GPOs attached to it.
+
+To make this more clear, here are some examples of how GPOs can be used:
+
+- Prevent the use of external media such as USB drives
+- Enforce password policies
+- Block users from running certain types of file
+- Enforcing logging
+- Deploying new software across a domain
+
+#### Practical Example of Group Policy Objects
+
+To configure GPOs we can use the *Group Management Tool* which is available from the start menu in windows on a domain controller.
+
+We need to first of all create a GPO under the GPO Organisational Unit in the OU hierarchy menu.
+
+Once we have created a GPO, it will appear under the GPO OU and we can then attach it to other OUs.
+
+>[!NOTE]
+>It is worth keeping in mind that by default a GPO will apply to the OU we attach it to and *all* the child OUs of it
+
+The following images demonstrate how to create a new GPO and attach it to OUs.
+
+![gpo1](images/21.png)
+
+![gpo2](images/22.png)
+
+![gpo3](images/23.png)
+
+![gpo4](images/24.png)
+
+![gpo5](images/25.png)
+
+![gpo6](images/26.png)
+
+![gpo7](images/27.png)
+
+![gpo8](images/28.png)
+
+![gpo9](images/29.png)
+
+When we select a GPO, we will see what is inside it.
+
+The first tab shows us its `scope` - which OUs it has been linked to.
+
+We can set `Security Filtering` to the GPO - this means we can configure it so that it only applies to certain specific users or computers in the linked scopes.
+
+By default, the security filtering is set to the `Authenticated Users` group which includes all the domain's users and computers.
+
+![gpo2a](images/22a.png)
+
+The `Settings` tab lets us see the contents of the GPO.
+
+We will see that there are computer and user configurations. For example, under computer configurations we might see security setting policies relating to minimum password lengths and thresholds for account lockouts.
+
+We can edit the settings of a GPO by right clicking on it and selecting the *edit* option. We will then enter a new window which will let us navigate to all the available configurations.
+
+>[!TIP]
+>If we want to find out more about a specific policy within a GPO, we can double click it and navigate to the `Explain` tab
+
+![gpo2b](images/22b.png)
+
+![gpo2c](images/22c.png)
+
+![gpo2d](images/22d.png)
+
+Group Policy Objects are distributed to the network via a network share called `SYSVOL` which is stored on a domain controller. All users in a domain should have access to this share so they can update their Group Policy Objects regularly.
+
+The `SYSVOL` share points to `C:\Windows\SYSVOL\sysvol\` directory on each of the domain controllers for the network. It can take a couple of hours for all machines to catch up with new GPO settings.
+
+>[!TIP]
+>If we want to force a specific computer to update its GPO settings - we can use `gpudate /force` from a powershell session on the computer itself
+
+![gpo10](images/30.png)
