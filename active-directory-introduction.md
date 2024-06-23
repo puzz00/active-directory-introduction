@@ -456,6 +456,8 @@ Once we have created a GPO, it will appear under the GPO OU and we can then atta
 
 The following images demonstrate how to create a new GPO and attach it to OUs.
 
+![gpo0](images/20.png)
+
 ![gpo1](images/21.png)
 
 ![gpo2](images/22.png)
