@@ -509,3 +509,89 @@ The `SYSVOL` share points to `C:\Windows\SYSVOL\sysvol\` directory on each of th
 >If we want to force a specific computer to update its GPO settings - we can use `gpudate /force` from a powershell session on the computer itself
 
 ![gpo10](images/30.png)
+
+## Active Directory Rights and Privileges
+
+Rights and privileges are used in AD along with permissions as a major part of its security. There are differences between these terms.
+
+- Permissions relate to what level of access users and systems have to objects such as files, directories and registry keys | examples of permissions are Read, Write, Modify and Full Control along with Execute for programs and List Folder Contents for directories
+- Rights are the fundamental actions or operations a user can perform on a computer or network such as logging on, shutting down, changing the system time and backing up files or directories
+- Privileges relate to what *specific* actions a user can perform which are not normally allowed for standard users such as debugging programs, loading device drivers and changing system configuration settings - we can see them as *special rights*
+
+In short and simplified, we can see *permissions* as being rules relating to what users can do with files and directories | *rights* as being broad rules which determine what users can do with computers and *privileges* as being special rights which let users do more specific actions on computers.
+
+### Built-In Security Groups
+
+It is a common security vulnerability in AD environments that users have been given too many *rights* and or *privileges* and *permissions*
+
+One way in which this can occur is via membership of built-in security groups which give their members powerful rights and privileges.
+
+Access to the following groups needs to be very carefully managed since attackers who pwn users in them can use the rights and privileges granted by the group memberships.
+
+#### Account Operators
+
+Members of this group can create and modify most types of accounts including users, local groups and global groups
+
+#### Administrators
+
+On a local host members of this group have complete access to the machine - if a user is in this group on a *domain controller* they have complete access to the entire domain.
+
+#### Backup Operators
+
+Members of this group can back up and restore files and directories on local systems. They can also log onto domain controllers locally and create shadow copies of the Security Accounts Manager database and the NT Directory Services database. These are highly sensitive databases from which lots of confidential data can be looted if they are accessed.
+
+>[!NOTE]
+>The SAM database assists with managing users on local machines whilst the NTDS database manages and stores data relating to an active directory environment
+
+#### DnsAdmins
+
+Members of this group have access to DNS information for the network.
+
+#### Domain Admins
+
+A very powerful group - members have full administrative access to the *entire* domain - they are local admin on *all* domain joined machines.
+
+#### Enterprise Admins
+
+This is another very powerful group - members have administrative privileges across the entire *forest* - this includes *all* the domains in the forest.
+
+#### Event Log Readers
+
+Members of this group have *read* access to event logs on computers - this group is created when a host is promoted to be a domain controller.
+
+>[!NOTE]
+>Members of the *event log readers* group cannot modify, delete or clear event logs - being able to read them is a security risk in and of itself however so they need to be closely controlled and monitored
+
+#### Print Operators
+
+Members of this group can log onto domain controllers locally. This could be abused if an attacker pwns a user in this group and loads a malicious driver to elevate their privileges in the domain.
+
+#### Remote Desktop Users
+
+Members of this group can remotely access hosts via the Remote Desktop Protocol.
+
+#### Server Operators
+
+This group by default contains no members. It exists only on domain controllers and if a member is added to it they are able to modify services, access SMB shares and backup files on domain controllers.
+
+### User Rights Assignment
+
+>[!IMPORTANT]
+>Whilst the term *Rights* is used in the name - in reality this concept refers to the assignment of *privileges* to users in that they determine what *special actions* users can perform
+
+Users in a domain can have various *privileges* assigned to them via group memberships and Group Policy Objects. The concept of *User Rights Assignment* refers to this granting of different system level privileges.
+
+Some example privileges which are sort out by attackers once they have gained a foothold in an active directory environment are given below.
+
+- SeBackupPrivilege | a user with this privilege can create system backups - they can bypass file and directory Access Contol Lists and potentially therefore obtain copies of sensitive system files
+- SeRestorePrivilege | as for the SeBackupPrivilege
+- SeDebugPrivilege | a user with this privilege can adjust the memory of a process - in this way an attacker could use a tool such as *mimikatz* to read the memory space of the Local System Authority Subsystem Service and access credenitals stored there | they can also inject malicious code into running processes
+- SeImpersonatePrivilege | a user with this privilege can impersonate the security context of a privileged account such as NT AUTHORITY\SYSTEM | this means they can access data which is restricted to the higher privileged user and perform administrative actions
+- SeTakeOwnershipPrivilege | users with this privilege can take ownership of objects in the system - this means they can delete or modify files, directories or registry keys which they do not have explicit access to | attackers can abuse this privilege to modify security settings
+- SeAssignPrimaryTokenPrivilege | a user can effectively use this privilege to take on the security context of another user - this is because they can replace the access token of a process with a different token | attackers can abuse this privilege to escalate their privileges by impersonating other users
+
+It needs to be noted that whilst the above mentioned privileges are very useful for attackers in their post exploitation activities - they are not the only privileges which can cause security issues.
+
+Unintended security vulnerabilities can be caused by the assignment of seemingly innocent privileges to users. An example of this would be if an attacker were to get *write access* to a GPO which applies to an OU which contains a user under their control - the attacker in this case would be able to assign privileges to the OU and therefore the pwned user via a tool such as [SharpGPOAbuse](https://github.com/FSecureLABS/SharpGPOAbuse)
+
+In summary - attackers can and do take advantage of rights, privileges and permissions within AD environments to elevate their privileges, loot confidential data and gain persistence to compromised systems.
