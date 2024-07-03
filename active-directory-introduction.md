@@ -610,7 +610,8 @@ Kerberos is stateless and when it is used no credentials are passed across the n
 
 It is essentialy composed of three main steps - this is why it is named after the three-headed dog of Greek and Roman mythology.
 
->[!TIP]The kerberos authentication process uses port 88 to transmit data | we can therefore attempt to identify domain controllers by port scanning machines for port 88 being open
+>[!TIP]
+>The kerberos authentication process uses port 88 to transmit data | we can therefore attempt to identify domain controllers by port scanning machines for port 88 being open
 
 #### Kerberos Step One - Initial Authentication
 
