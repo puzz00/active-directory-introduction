@@ -595,3 +595,106 @@ It needs to be noted that whilst the above mentioned privileges are very useful 
 Unintended security vulnerabilities can be caused by the assignment of seemingly innocent privileges to users. An example of this would be if an attacker were to get *write access* to a GPO which applies to an OU which contains a user under their control - the attacker in this case would be able to assign privileges to the OU and therefore the pwned user via a tool such as [SharpGPOAbuse](https://github.com/FSecureLABS/SharpGPOAbuse)
 
 In summary - attackers can and do take advantage of rights, privileges and permissions within AD environments to elevate their privileges, loot confidential data and gain persistence to compromised systems.
+
+## Authentication
+
+When using a domain in windows, all credentials are stored on a domain controller.
+
+When a user wants to authenticate to a service, the service checks with the domain controller to see if the user has provided valid credentials.
+
+NetNTLM used to be used and is still maintained for legacy support, but kerberos is the standard and default means of authentication used on a domain now.
+
+### Kerberos
+
+Kerberos is stateless and when it is used no credentials are passed across the network.
+
+It is essentialy composed of three main steps - this is why it is named after the three-headed dog of Greek and Roman mythology.
+
+>[!TIP]The kerberos authentication process uses port 88 to transmit data | we can therefore attempt to identify domain controllers by port scanning machines for port 88 being open
+
+#### Kerberos Step One - Initial Authentication
+
+The first thing a user needs is a *Ticket Granting Ticket* which can be issued by the *Key Distribution Center*
+
+The KDC is a service on a domain controller.
+
+The user sends their username along with a timestamp which has been encrypted using a key which has been derived from their password. This data is sent to the KDC which is in charge of creating tickets for kerberos on the domain.
+
+The KDC will create a Ticket Granting Ticket along with a session key.
+
+The TGT will be used by the user when they make requests for Ticket Granting Service tickets which are tickets to be used when attempting to access specific services on the domain.
+
+The use of a TGT to get TGS tickets means that the user will never have to send their actual password across the network in any form.
+
+The TGT includes a copy of the session key and it is encrypted using the hash for the *krbtgt* account. This means that the user will not be able to access what is inside the TGT.
+
+The inclusion of a copy of the session key in the TGT means that the KDC does not need to keep copies of session keys - it can just obtain a copy of a session key by using its hash to decrypt a TGT if it needs to.
+
+#### Kerberos Step Two - Ticket Granting Service Exchange
+
+Once a user has got a valid TGT, they can use it when they make requests to access services.
+
+To access a service on the domain, the user will send to the KDC their username along with their TGT, a timestamp which has been encrypted using the session key and a Service Principal Name which specifies a specific service. This request is for a Ticket Granting Service ticket which is a ticket which can be used by a user to access the specific service which the TGS ticket has been created for.
+
+The KDC will send a response which consists of a TGS ticket along with a Service Session Key which is needed by the user in order to access the service. The TGS ticket is encrypted by the KDC using a key which has been derived from the service owner's password hash. The service owner is the user or machine account which the service is running under. The TGS contains a copy of the service session key so that the service owner account can access it by decrypting the TGS.
+
+#### Kerberos Step Three - Client and Server Authentication Exchange
+
+The TGS ticket is sent to the desired service along with the username and an encrypted timestamp. The service then uses the password hash of the account it is running under to decrypt the TGS and validate the service session key inside it.
+
+If all of the above steps complete successfully, the user will be able to access the service which they want to access. The user's password has not been sent across the network at any point during the kerberos authentication process.
+
+### NT LAN Manager
+
+Whilst kerberos is the prefered way to authenticate - there are some occassions on which NTLM is still used.
+
+Here are some examples of when we could find NTLM being used.
+
+- Older legacy systems which do not support kerberos
+- Machines not on the domain - kerberos needs machines to be on a domain in order to work
+- Fallback mechanism - uses NTLM if there is a problem with kerberos
+- File and print services - sometimes NTLM is used - especially in older environments or where linux machines are used along with windows machines
+
+It is therefore still worth knowing about NTLM.
+
+>[!IMPORTANT]
+>NTLM is not as secure as kerberos | if we find it being used there are specific attacks we can carry out which will be covered in more detail in another repo
+
+Essentialy, NTLM is a *challenge-response* method of authentication. The steps are as follows.
+
+#### Step One - Negotiate
+
+##### Client Request
+
+The client machine sends a *negotiate* message to the server. This message indicates to the server the client machines capabilities and supported versions of NTLM.
+
+##### Server Response
+
+The server responds by sending a *challenge* to the client. This challenge message includes a randomly created value - number or string - which is called a *nonce*
+
+>[!NOTE]
+>A *nonce* in cryptography stands for *number used once* as it is a unique value
+
+#### Step Two - Challenge
+
+##### Client Response
+
+The client machine responds to the challenge by sending an *authenticate* message which includes:
+
+- The username
+- The domain name
+- The response to the challenge | this is an encrypted value created by using the *nonce* along with the users NTLM password hash
+
+#### Step Three - Authenticate
+
+##### Server Verification
+
+The server forwards the challenge and response to a domain controller for verification.
+
+The domain controller uses a copy of the clients hash to combine with the challenge.
+
+It then checks its response with the response which the client provided to the server. If these two responses match, the DC will let the server know that it has been able to verify the clients credentials, otherwise it will let the server know that it has not been able to verify the clients credentials.
+
+The server responds accordingly based on the result the DC has given it.
+
+The above process is for netNTLM authentication on a domain. If the authentication is happening with a local account, the server can validate the clients response to the challenge itself as it will have a copy of the local account NTLM hashes stored in its SAM.
