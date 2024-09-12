@@ -96,7 +96,7 @@ We are essentialy creating a *tree* which is the next container up in the AD str
 
 In our example we will create AU.TEZZLA.COM and CN.TEZZLA.COM
 
-![ad1](images/1.png)
+[ad1](images/1.png)
 
 The lines in the diagram represent *trust relationships*
 
@@ -130,7 +130,7 @@ The trees in a forest can have different namespaces - working with our example t
 
 Hopefully the diagram below will start to make things more clear.
 
-![ad2](images/2.png)
+[ad2](images/2.png)
 
 >[!NOTE]
 >The diagram has had some arrows showing trusts left off because it would be cluttered - essentialy because there is a two-way transitive trust created between the trees in our forest *all* domains in TEZZLA.COM can access *all* domains in TEZZLA.ORG and vice-versa
@@ -290,7 +290,7 @@ The main purpose of having group objects is so we can easily manage access to re
 Consider a business which wants to give all one hundred members of their finance department access to a new shared folder - it would be crazy to do this on a one-by-one basis - this is where a group can help as the sysadmin could use an existing group or create a new one which contains the members of the finance department and then give that group access to the shared folder.
 
 >[!NOTE]
->Groups are used for managing security related issues such as access | rights | privileges
+>Groups are used for managing security related issues such as access, rights and privileges
 
 #### Common Security Groups
 
@@ -388,14 +388,6 @@ They can contain group objects which have *universal* or *global* scopes.
 >[!NOTE]
 >Groups with universal scope are kept in the Global Catalog so altering objects in them causes replication to occur across a forest
 
-![ad8](images/8.png)
-
-![ad9](images/9.png)
-
-![ad15](images/15.png)
-
-![ad16](images/16.png)
-
 ### Organizational Unit Objects
 
 When we log into a domain controller and manage active directory users and computers, we will see that the users, computers and groups are arranged into Organizional Units. These units can be seen as containers. It is common to see these units mirror the business logic of an organization - we might see units called sales, IT, admin etc.
@@ -406,16 +398,6 @@ When we log into a domain controller and manage active directory users and compu
 The above note makes us aware that OUs are used to let administrators more easily manage domain objects.
 
 Group Policy Objects - which we will cover later in these notes - can be attached to OUs and these GPOs will then affect the objects linked to the OU.
-
-![ad10](images/10.png)
-
-![ad11](images/11.png)
-
-![ad12](images/12.png)
-
-![ad17](images/17.png)
-
-![ad18](images/18.png)
 
 ### Group Policy Objects
 
@@ -610,8 +592,7 @@ Kerberos is stateless and when it is used no credentials are passed across the n
 
 It is essentialy composed of three main steps - this is why it is named after the three-headed dog of Greek and Roman mythology.
 
->[!TIP]
->The kerberos authentication process uses port 88 to transmit data | we can therefore attempt to identify domain controllers by port scanning machines for port 88 being open
+>[!TIP]The kerberos authentication process uses port 88 to transmit data | we can therefore attempt to identify domain controllers by port scanning machines for port 88 being open
 
 #### Kerberos Step One - Initial Authentication
 
@@ -699,3 +680,37 @@ It then checks its response with the response which the client provided to the s
 The server responds accordingly based on the result the DC has given it.
 
 The above process is for netNTLM authentication on a domain. If the authentication is happening with a local account, the server can validate the clients response to the challenge itself as it will have a copy of the local account NTLM hashes stored in its SAM.
+
+## Lightweight Directory Access Protocol
+
+LDAP is a protocol which is used to access and manage directory services such as AD. This means that LDAP is the way in which clients in a windows domain interact with Active Directory - for example to make queries about AD objects such as retrieving a user name or to manage the objects for example creating or deleting a new user.
+
+>[!NOTE]
+>We can use PowerShell to more easily interact with Active Directory objects, but often underneath the bonnet PS is using LDAP operations - the PS AD cmdlets provide an abstraction which makes life easier for us
+
+LDAP runs by default over port 389 and it is *not encrypted* which means that if we can sniff traffic on a network we will be able to see LDAP queries and operations. An operation of particular interest would be the *bind* operation as this is used to authenticate a client to an LDAP server.
+
+Mostly, however, LDAP is secured using Secure Socket Layer over port 636.
+
+## MSRPC
+
+This is MicroSofts implementation of *Remote Procedure Call* which allows programs to make requests to programs on other devices for a service - essentialy the program calls a procedure on the remote machine as if the procedure were local.
+
+MSRPC is used in Active Directory environments and can be of use when we are performing enumeration with tools such as *bloodhound* which uses the *samr* interface to gather data about AD objects, permissions and relationships.
+
+>[!NOTE]
+>Interfaces in MSRPC are sets of defined procedures which let programs request and execute functions on remote systems as if they were local functions - *samr* is an interface which enables the remote management of user accounts and groups
+
+## Conclusion
+
+Understanding Active Directory is crucial for us as ~~hackers~~ pentesters since it is the cornerstone of many networks we ~~compromise~~ are invited to legally test.
+
+This high-level overview has introduced the foundational concepts of AD, including its structure, key components, and some basics on how it works.
+
+By grasping these fundamentals, we are better equipped to understand how to [enumerate and attack Active Directory](https://github.com/puzz00/ad-enumeration-basic-attacks/blob/main/ad-enum-basic-attacks.md)
+
+Perhaps the main thing to take away is how complex AD can get - this is good for us as with increased complexity comes increased room for misconfigurations and security errors | we just need to get good at finding and exploiting them :smiley: 
+
+---
+
+> in the midst of chaos | there is also opportunity
